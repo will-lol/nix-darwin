@@ -23,7 +23,10 @@ let
       cmd = config.command;
       env = config.environment // optionalAttrs (config.path != "") { PATH = config.path; };
 
-    in
+      wait4Command = pkgs.writeShellScript "wait4command"
+        "/bin/wait4path $(realpath $(type -P \"$1\")) && \"$@\"";
+
+    in 
 
     { options = {
         environment = mkOption {
@@ -88,7 +91,11 @@ let
         '');
 
         serviceConfig.Label = mkDefault "${cfg.labelPrefix}.${name}";
-        serviceConfig.ProgramArguments = mkIf (cmd != "") [ "/bin/sh" "-c" "exec ${cmd}" ];
+        serviceConfig.ProgramArguments = mkIf (cmd != "") [
+          "/bin/sh"
+          "-c"
+          "${wait4Command} ${cmd}"
+        ];
         serviceConfig.EnvironmentVariables = mkIf (env != {}) env;
       };
     };
