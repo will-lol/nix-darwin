@@ -62,11 +62,8 @@ in
 
     launchd.daemons.nix-optimise = {
       environment.NIX_REMOTE = optionalString config.nix.useDaemon "daemon";
+      command = "${config.nix.package}/bin/nix-store --optimise";
       serviceConfig = {
-        ProgramArguments = [
-          "/bin/sh" "-c"
-          "/bin/wait4path ${config.nix.package} &amp;&amp; exec ${config.nix.package}/bin/nix-store --optimise"
-        ];
         RunAtLoad = false;
         StartCalendarInterval = cfg.interval;
         UserName = cfg.user;
