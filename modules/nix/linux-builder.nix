@@ -176,11 +176,8 @@ in
       environment = {
         inherit (config.environment.variables) NIX_SSL_CERT_FILE;
       };
+      command = "${script}";
       serviceConfig = {
-        ProgramArguments = [
-          "/bin/sh" "-c"
-          "/bin/wait4path /nix/store &amp;&amp; exec ${script}"
-        ];
         KeepAlive = true;
         RunAtLoad = true;
         WorkingDirectory = cfg.workingDirectory;
