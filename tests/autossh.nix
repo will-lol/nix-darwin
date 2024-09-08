@@ -10,7 +10,7 @@
   test = ''
     plist=${config.out}/Library/LaunchDaemons/org.nixos.autossh-foo.plist
     test -f $plist
-    grep '<string>exec /nix/store/.*/bin/autossh ' $plist
+    grep '<string>exec /bin/wait4path /nix/store && exec /nix/store/.*/bin/autossh ' $plist
     grep '<string>exec.*-i /some/key ' $plist
     tr -d '\n\t ' <$plist |grep '<key>KeepAlive</key><true */>'
   '';
