@@ -23,9 +23,6 @@ let
       cmd = config.command;
       env = config.environment // optionalAttrs (config.path != "") { PATH = config.path; };
 
-      wait4Command = pkgs.writeShellScript "wait4command"
-        "/bin/wait4path $(realpath $(type -P \"$1\")) && exec \"$@\"";
-
     in 
 
     { options = {
@@ -94,7 +91,7 @@ let
         serviceConfig.ProgramArguments = mkIf (cmd != "") [
           "/bin/sh"
           "-c"
-          "exec ${wait4Command} ${cmd}"
+          "exec /bin/wait4path /nix/store && exec ${cmd}"
         ];
         serviceConfig.EnvironmentVariables = mkIf (env != {}) env;
       };
