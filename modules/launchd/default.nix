@@ -91,7 +91,7 @@ let
         serviceConfig.ProgramArguments = mkIf (cmd != "") [
           "/bin/sh"
           "-c"
-          "exec /bin/wait4path /nix/store && exec ${cmd}"
+          "/bin/wait4path /nix/store && exec ${cmd}"
         ];
         serviceConfig.EnvironmentVariables = mkIf (env != {}) env;
       };
