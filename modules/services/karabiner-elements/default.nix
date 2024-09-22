@@ -38,11 +38,14 @@ in
     # the system extension is activated, so we can call activate from the manager
     # which will block until the system extension is activated.
     launchd.daemons.start_karabiner_daemons = {
-      script = ''
+      serviceConfig.ProgramArguments = [
+        "/bin/sh" "-c"
+        "/bin/wait4path /nix/store &amp;&amp; ${pkgs.writeScript "start_karabiner_daemons" ''
           ${parentAppDir}/.Karabiner-VirtualHIDDevice-Manager.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Manager activate
           launchctl kickstart system/org.pqrs.karabiner.karabiner_grabber
           launchctl kickstart system/org.pqrs.karabiner.karabiner_observer
-      '';
+        ''}"
+      ];
       serviceConfig.Label = "org.nixos.start_karabiner_daemons";
       serviceConfig.RunAtLoad = true;
     };
@@ -70,7 +73,11 @@ in
     };
 
     launchd.daemons.Karabiner-DriverKit-VirtualHIDDeviceClient = {
-      command = "${pkgs.karabiner-elements.driver}/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/MacOS/Karabiner-DriverKit-VirtualHIDDeviceClient";
+      serviceConfig.ProgramArguments = [
+        "/bin/sh" "-c"
+        # For unknown reasons this daemon will fail if VirtualHIDDeviceClient is not exec'd.
+        "/bin/wait4path /nix/store &amp;&amp; exec \"${pkgs.karabiner-elements.driver}/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/MacOS/Karabiner-DriverKit-VirtualHIDDeviceClient\""
+      ];
       serviceConfig.ProcessType = "Interactive";
       serviceConfig.Label = "org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient";
       serviceConfig.KeepAlive = true;
@@ -98,7 +105,6 @@ in
     };
 
     launchd.user.agents.karabiner_session_monitor = {
-      command = "/run/wrappers/bin/karabiner_session_monitor";
       serviceConfig.Label = "org.pqrs.karabiner.karabiner_session_monitor";
       serviceConfig.KeepAlive = true;
     };
